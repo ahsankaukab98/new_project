@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProfileAcivity">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:id="@+id/img_person"
+                android:src="@mipmap/ic_launcher"
+                android:layout_marginLeft="100dp" />
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_pick_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:src="@android:drawable/ic_menu_camera" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_pick_gallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:src="@android:drawable/ic_menu_gallery" />
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ed_name"
+                android:hint="Name"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change"
+                android:id="@+id/btn_change_name"/>
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ed_email"
+                android:inputType="textEmailAddress"
+                android:hint="Email"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change"
+                android:id="@+id/btn_change_email"/>
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ed_mobile"
+                android:hint="Mobile"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change"
+                android:id="@+id/btn_change_mobile"/>
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ed_old_passward"
+                android:hint="Old passward"
+                android:inputType="textPassword"/>
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ed_new_passward"
+                android:hint="New Passward"
+                android:inputType="textPassword"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="change"
+                android:id="@+id/btn_change_passward"/>
+        </LinearLayout>
+    </ScrollView>
+</android.support.constraint.ConstraintLayout>
