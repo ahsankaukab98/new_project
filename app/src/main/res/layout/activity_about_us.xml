@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".About_us">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="WHO WE ARE
+              Paragraph is an international publishing and events company. Founded in 1997, Paragraph has numerous well-known and popular magazines, publications, awards and web sites, as well as the Paragraph Partnership offering its services to clients throughout the world.
+
+WHAT WE DO
+We produce and deliver high quality magazines, web sites, awards and events in specialist sectors and markets to both trade and consumer. We also offer bespoke client services to produce one-off publications that meet our customers' strict specifications.
+
+MISSION STATEMENT
+Paragraph is committed to delivering top quality products and services within the drinks, travel, and hospitality sectors."
+              android:textAlignment="center"
+              android:textSize="30dp"/>
+        </LinearLayout>
+    </ScrollView>
+</android.support.constraint.ConstraintLayout>

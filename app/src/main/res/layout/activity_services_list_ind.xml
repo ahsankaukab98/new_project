@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SignIn_Activity">
+    tools:context=".services_list_ind">
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -16,70 +16,74 @@
             <ImageView
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:id="@+id/img_person"
+                android:id="@+id/img_servicess"
                 android:src="@mipmap/ic_launcher"
                 android:layout_marginLeft="100dp" />
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_pick_camera"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:src="@android:drawable/ic_menu_camera"
-                android:visibility="visible"/>
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_pick_gallery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:src="@android:drawable/ic_menu_gallery"
-                android:visibility="visible"/>
-
-            <EditText
+                android:text="Name"
+                android:layout_marginBottom="8dp"/>
+            <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/ed_name"
-                android:hint="Name"/>
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/ed_email"
-                android:inputType="textEmailAddress"
-                android:hint="Email"/>
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/ed_mobile"
-                android:hint="Mobile"/>
-
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/ed_user_name"
-                android:hint="User Name"/>
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/ed_passward"
-                android:hint="passward"
-                android:inputType="textPassword"/>
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/ed_retypepass"
-                android:hint="Retype Passward"
-                android:inputType="textPassword"/>
-            <ProgressBar
+                />
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/progress_bar"
-                android:visibility="gone"/>
+                android:text="Short Description"/>
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ed_des_short"
+                android:layout_marginBottom="40dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Long Description"
+                android:layout_marginBottom="8dp"/>
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ed_des_long"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="mobile Number"
+                android:layout_marginBottom="8dp"/>
             <Button
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="signup"
-                android:id="@+id/sign_in"/>
+                android:id="@+id/btn_Mobile"
+                android:text="Mobile"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="mobile Number"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/btn_Mobile_sms"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Mobile" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:layout_marginBottom="8dp"/>
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_email"
+                android:text="email"
+                />
+
+
         </LinearLayout>
     </ScrollView>
+
 </android.support.constraint.ConstraintLayout>

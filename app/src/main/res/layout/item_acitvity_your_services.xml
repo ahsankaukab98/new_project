@@ -5,22 +5,15 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/img_service"/>
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/img_services"
+        android:src="@drawable/ic_menu_send"
+        />
     <TextView
         android:id="@+id/tv_items_des_short"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:layout_marginBottom="12dp"
-        android:paddingLeft="30dp" />
-    <TextView
-        android:id="@+id/tv_items_des_long"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:layout_marginBottom="12dp"
-        android:paddingLeft="30dp" />
+        />
 
 </LinearLayout>

@@ -18,20 +18,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.facebook.login.LoginManager;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    ArrayList<String> arraylist;
+    ArrayList<String> arraylist=new ArrayList<>();
     ArrayList<String> newlist;
 
     ListView list;
@@ -44,13 +48,15 @@ public class HomeActivity extends AppCompatActivity
     Shared_pref_Login msharedpref;
     TextView tv_name;
     TextView tv_mobile;
+    ImageView img_person;
+    String TAG_SELECT="select";
+    File localFile = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,7 +115,6 @@ public class HomeActivity extends AppCompatActivity
         });
         mservice_database=new services_list_database(HomeActivity.this);
         cur=mservice_database.getdata();
-        arraylist=new ArrayList<>();
         list=findViewById(R.id.list_home);
         while(cur.moveToNext())
         {
@@ -124,7 +129,8 @@ public class HomeActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else
+            {
             super.onBackPressed();
         }
     }
@@ -171,8 +177,10 @@ public class HomeActivity extends AppCompatActivity
         msharedpref=new Shared_pref_Login(HomeActivity.this);
         tv_name=findViewById(R.id.tv_name);
         tv_mobile=findViewById(R.id.tv_mobile);
+        img_person=findViewById(R.id.img_person);
         tv_name.setText(msharedpref.getData("Name"));
         tv_mobile.setText(msharedpref.getData("Mobile"));
+        load_image();
 
         return true;
     }
@@ -189,22 +197,23 @@ public class HomeActivity extends AppCompatActivity
         else if (id == R.id.nav_your_services)
         {
             startActivity(new Intent(HomeActivity.this,your_service_activity.class));
-            startActivity(new Intent(HomeActivity.this,your_service_activity.class));
         }
         else if (id == R.id.nav_fav_services)
         {
-
+            startActivity(new Intent(HomeActivity.this,fav_contact_activity.class));
+            startActivity(new Intent(HomeActivity.this,fav_contact_activity.class));
         }
         else if (id == R.id.log_out)
         {
             msharedpref=new Shared_pref_Login(HomeActivity.this);
             msharedpref.logoutsession();
+            LoginManager.getInstance().logOut();
             startActivity(new Intent(HomeActivity.this,LoginActivity.class));
             finish();
         }
         else if (id == R.id.about_us)
         {
-
+            startActivity(new Intent(HomeActivity.this,About_us.class));
         }
         else if (id == R.id.rate_app)
         {
@@ -218,7 +227,6 @@ public class HomeActivity extends AppCompatActivity
     void updatedata(String name)
     {
 //
-
         newlist=new ArrayList<>();
         list=new ListView(HomeActivity.this);
         list=findViewById(R.id.list_home);
@@ -242,7 +250,7 @@ public class HomeActivity extends AppCompatActivity
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 Intent intent=new Intent(HomeActivity.this,Seervice_list.class);
-                intent.putExtra(name, newlist.get(position));
+                intent.putExtra(TAG_SELECT, newlist.get(position));
                 startActivity(intent);
             }
         });
@@ -250,7 +258,16 @@ public class HomeActivity extends AppCompatActivity
         ArrayAdapter arrayAdapter=new ArrayAdapter(HomeActivity.this, R.layout.item_activity_home, R.id.tv_items_name,newlist);
         list.setAdapter(arrayAdapter);
     }
+    void load_image()
+    {
+        if(!msharedpref.getData("Firebase_uri").equals("")) {
+            Glide.with(this)
+                    .load(msharedpref.getData("Firebase_uri")) // works for File or Uri
+                    .into(img_person);
+        }
 
+
+    }
 
 
 }

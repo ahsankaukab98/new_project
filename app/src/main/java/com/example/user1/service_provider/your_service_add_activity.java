@@ -74,11 +74,9 @@ public class your_service_add_activity extends AppCompatActivity {
     int count2=0;
     List<String> spinnerArray = new ArrayList<>();
     FirebaseStorage storage = FirebaseStorage.getInstance();
-    // Create a storage reference from our app
+    // Create a storage dat from our app
     StorageReference storageRef = storage.getReference();
 
-    // Create a reference to "mountains.jpg"
-    // Create a reference to 'images/mountains.jpg'
     StorageReference firebaseImagesRef = storageRef.child("images/"+ UUID.randomUUID()+".jpg");
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -173,16 +171,16 @@ public class your_service_add_activity extends AppCompatActivity {
                                     .child(msharedpref.getData("Firebase")).child("my_services").child("service "+count);
                             userdata.child("short_description").setValue(ed_add_service_short_des.getText().toString());
                             userdata.child("Long_description").setValue(ed_add_service_Description.getText().toString());
-                            if(downloadUri!=null)
-                            userdata.child("image_uri").setValue(downloadUri.toString());
-
                             selector=FirebaseDatabase.getInstance().getReference("list_services")
                                     .child(spinner_services.getSelectedItem().toString()).child("service "+count2);
                             selector.child("name").setValue(msharedpref.getData("Name").toString());
                             selector.child("mobile").setValue(msharedpref.getData("Mobile").toString());
                             selector.child("email").setValue(msharedpref.getData("Email").toString());
                             if(downloadUri!=null)
-                            selector.child("image_uri").setValue(downloadUri.toString());
+                            {
+                                userdata.child("image_uri").setValue(downloadUri.toString());
+                                selector.child("image_uri").setValue(downloadUri.toString());
+                            }
                             selector.child("short_description").setValue(ed_add_service_short_des.getText().toString());
                             selector.child("Long_description").setValue(ed_add_service_Description.getText().toString());
                             //Toast.makeText(your_service_add_activity.this,"Service Added Successfully", Toast.LENGTH_SHORT).show();
@@ -225,7 +223,6 @@ public class your_service_add_activity extends AppCompatActivity {
         array=new ArrayList<>();
         cur=mservice_databae.getdata();
         progress_bar=findViewById(R.id.progress_bar);
-        store_file();
 
     }
     @SuppressLint("CheckResult")
@@ -238,7 +235,7 @@ public class your_service_add_activity extends AppCompatActivity {
 
                 })
                 .subscribe(this::onImagePicked, throwable -> {
-//                    return Toast.makeText(SignIn_Activity.this, String.format("Error: %s", throwable), Toast.LENGTH_LONG).show();
+                    //return Toast.makeText(your_service_add_activity.this, String.format("Error: %s", throwable), Toast.LENGTH_LONG).show();
                 });
     }
 
@@ -273,7 +270,6 @@ public class your_service_add_activity extends AppCompatActivity {
         } else {
             Glide.with(this)
                     .load(result) // works for File or Uri
-                    .crossFade()
                     .into(img_service);
 
 
@@ -307,7 +303,8 @@ public class your_service_add_activity extends AppCompatActivity {
             // Observe state change events such as progress, pause, and resume
             uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
-                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot)
+                {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
 
                     Toast.makeText(your_service_add_activity.this,"Upload is " + progress + "% done",Toast.LENGTH_SHORT).show();
@@ -320,20 +317,14 @@ public class your_service_add_activity extends AppCompatActivity {
             });
 
 
-            
+
 
 
 
         }
 
     }
-    void store_file()
-    {
 
-
-// While the file names are the same, the references point to different files
-
-    }
 
 
     private File createTempFile() {

@@ -11,14 +11,15 @@ public class Shared_pref_Login {
         this.context = context;
 
     }
-    public void saveLoginDetails(String email, String password,String name,String mobile,String firebase) {
+    public void saveLoginDetails(String email, String password,String name,String mobile,String firebase_name,String image_uri) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("LoginDetails", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("Email", email);
         editor.putString("Password", password);
         editor.putString("Name",name);
         editor.putString("Mobile",mobile);
-        editor.putString("Firebase",firebase);
+        editor.putString("Firebase",firebase_name);
+        editor.putString("Firebase_uri",image_uri);
         editor.commit();
     }
     public void changeData(String key,String Value) {
@@ -27,12 +28,14 @@ public class Shared_pref_Login {
         editor.putString(key,Value);
         editor.commit();
     }
-    public String getData(String key) {
+    public String getData(String key)
+    {
         SharedPreferences sharedPreferences = context.getSharedPreferences("LoginDetails", Context.MODE_PRIVATE);
         return sharedPreferences.getString(key, "");
     }
 
-    public boolean isUserLogedOut() {
+    public boolean isUserLogedOut()
+    {
         SharedPreferences sharedPreferences = context.getSharedPreferences("LoginDetails", Context.MODE_PRIVATE);
         boolean isEmailEmpty = sharedPreferences.getString("Email", "").isEmpty();
         boolean isPasswordEmpty = sharedPreferences.getString("Password", "").isEmpty();

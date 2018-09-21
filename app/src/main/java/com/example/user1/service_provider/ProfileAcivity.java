@@ -2,6 +2,8 @@ package com.example.user1.service_provider;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -12,10 +14,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -23,17 +28,26 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnPausedListener;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.mlsdev.rximagepicker.RxImageConverters;
 import com.mlsdev.rximagepicker.RxImagePicker;
 import com.mlsdev.rximagepicker.Sources;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.UUID;
 
 public class ProfileAcivity extends AppCompatActivity {
 
     ImageView img_person;
     FloatingActionButton fab_pick_camera;
     FloatingActionButton fab_pick_gallery;
+    ProgressBar progress_bar;
     EditText ed_name;
     EditText ed_email;
     EditText ed_mobile;
@@ -44,9 +58,15 @@ public class ProfileAcivity extends AppCompatActivity {
     Button btn_change_mobile;
     Button btn_change_passward;
     Shared_pref_Login msharedpref;
+    Uri downloadUri;
+    ProgressBar progressBar;
     private DatabaseReference userdata;
     FirebaseUser user;
-
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReference();
+    StorageReference firebaseImagesRef = storageRef.child("images/"+ UUID.randomUUID()+".jpg");
+    StorageReference httpsReference;
+    File localFile = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,23 +75,25 @@ public class ProfileAcivity extends AppCompatActivity {
         {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setTitle("Sign In");
+            getSupportActionBar().setTitle("Profile");
         }
         init();
         sethint();
         userdata = FirebaseDatabase.getInstance().getReference("service_providers").child(msharedpref.getData("Firebase"));
         fab_pick_camera.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 pickImageFromSource(Sources.CAMERA);
+
             }
         });
         fab_pick_gallery.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 pickImageFromSource(Sources.GALLERY);
+
             }
         });
         btn_change_name.setOnClickListener(new View.OnClickListener()
@@ -196,6 +218,7 @@ public class ProfileAcivity extends AppCompatActivity {
     void init()
     {
         img_person=findViewById(R.id.img_person);
+        progress_bar=findViewById(R.id.progress_bar);
         fab_pick_camera=findViewById(R.id.fab_pick_camera);
         fab_pick_gallery=findViewById(R.id.fab_pick_gallery);
         ed_name=findViewById(R.id.ed_name);
@@ -216,6 +239,8 @@ public class ProfileAcivity extends AppCompatActivity {
         ed_name.setHint(msharedpref.getData("Name"));
         ed_email.setHint(msharedpref.getData("Email"));
         ed_mobile.setHint(msharedpref.getData("Mobile"));
+        load_image();
+
     }
 
     @SuppressLint("CheckResult")
@@ -235,15 +260,110 @@ public class ProfileAcivity extends AppCompatActivity {
 //        Toast.makeText(this, String.format("Result: %s", result), Toast.LENGTH_LONG).show();
         if (result instanceof Bitmap) {
             img_person.setImageBitmap((Bitmap) result);
+            img_person.setDrawingCacheEnabled(true);
+            img_person.buildDrawingCache();
+            Bitmap bitmap = ((BitmapDrawable) img_person.getDrawable()).getBitmap();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+            img_person.setDrawingCacheEnabled(true);
+            StorageMetadata metadata=new StorageMetadata.Builder()
+                    .setCustomMetadata("text","Person_image")
+                    .build();
+            progress_bar.setVisibility(View.VISIBLE);
+            UploadTask uploadtask=firebaseImagesRef.putBytes(data,metadata);
+            uploadtask.addOnSuccessListener(ProfileAcivity.this,new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
+                {
+                    progress_bar.setVisibility(View.GONE);
+                    downloadUri=taskSnapshot.getUploadSessionUri();
+
+
+                }
+
+
+
+            });
         } else {
             Glide.with(this)
                     .load(result) // works for File or Uri
-                    .crossFade()
                     .into(img_person);
+
+            Uri file = Uri.fromFile((File) result);
+            StorageReference riversRef = storageRef.child("images/"+file.getLastPathSegment());
+            UploadTask uploadTask = riversRef.putFile(file);
+            progress_bar.setVisibility(View.VISIBLE);
+
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                    // ...
+                    progress_bar.setVisibility(View.GONE);
+                    riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri)
+                        {
+                            downloadUri =uri;
+                            Toast.makeText(ProfileAcivity.this,uri.toString(),Toast.LENGTH_SHORT).show();
+
+                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            .setPhotoUri(Uri.parse(downloadUri.toString()))
+                            .build();
+                user.updateProfile(profileUpdates)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task)
+                            {
+                                if (task.isSuccessful())
+                                {
+                                    userdata.child("image").setValue(downloadUri.toString());
+                                    msharedpref.changeData("Firebase_uri",downloadUri.toString());
+                                    Toast.makeText(ProfileAcivity.this,"Image Updated Successfully",Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                        }
+
+                    });
+
+                }
+            });
+            // Observe state change events such as progress, pause, and resume
+            uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot)
+                {
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+
+                    Toast.makeText(ProfileAcivity.this,"Upload is " + progress + "% done",Toast.LENGTH_SHORT).show();
+                }
+            }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(ProfileAcivity.this,"Upload is paused",Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
-    private File createTempFile() {
+    private File createTempFile()
+    {
         return new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), System.currentTimeMillis() + "_image.jpeg");
+    }
+    void load_image()
+    {
+        if(!msharedpref.getData("Firebase_uri").equals("")) {
+            Glide.with(this)
+                    .load(msharedpref.getData("Firebase_uri")) // works for File or Uri
+                    .into(img_person);
+        }
+
     }
 
 }

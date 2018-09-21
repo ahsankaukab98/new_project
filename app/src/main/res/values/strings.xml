@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Service_Provider</string>
+    <string name="app_name">one_time</string>
     <string name="title_activity_home">HomeActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -7,14 +7,6 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-    <array name="Selector">
-        <item>
-            Seller
-        </item>
-        <item>
-            Buyer
-        </item>
-    </array>
     <string name="title_activity_home_provider">HomeActivity_provider</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
@@ -97,4 +89,6 @@
     <string name="title_activity_seervice_list">Seervice_list</string>
     <string name="title_activity_your">yourActivity</string>
     <string name="title_activity_your_service_activity">your_service_activity</string>
+    <string name="facebook_app_id">284401915617974</string>
+    <string name="fb_login_protocol_scheme">fb284401915617974</string>
 </resources>

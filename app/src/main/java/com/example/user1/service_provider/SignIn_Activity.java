@@ -3,6 +3,7 @@ package com.example.user1.service_provider;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -13,23 +14,31 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnPausedListener;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.mlsdev.rximagepicker.RxImageConverters;
 import com.mlsdev.rximagepicker.RxImagePicker;
 import com.mlsdev.rximagepicker.Sources;
@@ -49,14 +58,26 @@ public class SignIn_Activity extends AppCompatActivity {
     private EditText ed_username;
     private EditText ed_retype_passward;
     private DatabaseReference userdata;
+    String TAG_NAME="name";
+    String TAG_EMAIL="email";
+    String TAG_MOBILE="mobile";
+    String TAG_IAMGE="image";
+    ProgressBar progress_bar;
+    Shared_pref_Login mshaerd_login;
+    Uri downloadUri;
+    Object results;
     int count=0;
     private DatabaseReference counter;
     private FirebaseAuth mAuth;
+    FirebaseUser user;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     String mVerificationId;
     PhoneAuthProvider.ForceResendingToken mResendToken;
     boolean check=false;
-
+    boolean verify=false;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReference();
+    Bundle bundle;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -80,77 +101,40 @@ public class SignIn_Activity extends AppCompatActivity {
         sign_in.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v)
-            {
-                if(ed_passward.getText().toString().equals(ed_retype_passward.getText().toString()))
+            public void onClick(View v) {
+                if (ed_mobille != null)
                 {
-                    usersignin();
-                    userdata=FirebaseDatabase.getInstance().getReference("service_providers").child("user "+count);
                     counter.setValue(count);
-                    save_user();
+                    if (bundle.getString(TAG_NAME) != null)
+                    {
+                        save_user();
+                        if (verify)
+                            pic_upload();
+                        startActivity(new Intent(SignIn_Activity.this, HomeActivity.class));
+
+                    }
+                    else {
+                        if (ed_passward.getText().toString().equals(ed_retype_passward.getText().toString())) {
+
+                                if (verify) {
+                                    pic_upload();
+                                } else
+                                    save_user();
+
+                                usersignin();
+//
+                        } else {
+                            Toast.makeText(SignIn_Activity.this, "Passward does not match", Toast.LENGTH_SHORT).show();
+                            ed_passward.setText(null);
+                            ed_retype_passward.setText(null);
+                        }
+                    }
+
                 }
                 else
                 {
-                    Toast.makeText(SignIn_Activity.this, "Passward does not match", Toast.LENGTH_SHORT).show();
-                    ed_passward.setText(null);
-                    ed_retype_passward.setText(null);
+                    Toast.makeText(SignIn_Activity.this, "Enter Mobile Number", Toast.LENGTH_SHORT).show();
                 }
-
-
-//                PhoneAuthProvider.getInstance().verifyPhoneNumber(
-//                        ed_mobille.getText().toString(),        // Phone number to verify
-//                        60,                 // Timeout duration
-//                        TimeUnit.SECONDS,   // Unit of timeout
-//                        SignIn_Activity.this,               // Activity (for callback binding)
-//                        mCallbacks);        // OnVerificationStateChangedCallbacks
-//                mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-//
-//                    @Override
-//                    public void onVerificationCompleted(PhoneAuthCredential credential) {
-//                        // This callback will be invoked in two situations:
-//                        // 1 - Instant verification. In some cases the phone number can be instantly
-//                        //     verified without needing to send or enter a verification code.
-//                        // 2 - Auto-retrieval. On some devices Google Play services can automatically
-//                        //     detect the incoming verification SMS and perform verification without
-//                        //     user action.
-//
-//                        //signInWithPhoneAuthCredential(credential);
-//                    }
-//
-//                    @Override
-//                    public void onVerificationFailed(FirebaseException e) {
-//                        // This callback is invoked in an invalid request for verification is made,
-//                        // for instance if the the phone number format is not valid.
-//
-//
-//                        if (e instanceof FirebaseAuthInvalidCredentialsException) {
-//                            // Invalid request
-//                            // ...
-//                            Toast.makeText(SignIn_Activity.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_SHORT).show();
-//                        } else if (e instanceof FirebaseTooManyRequestsException) {
-//                            // The SMS quota for the project has been exceeded
-//                            // ...
-//                            Toast.makeText(SignIn_Activity.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_SHORT).show();
-//                        }
-//
-//                        // Show a message and update the UI
-//                        // ...
-//                    }
-//
-//                    @Override
-//                    public void onCodeSent(String verificationId,
-//                                           PhoneAuthProvider.ForceResendingToken token) {
-//                        // The SMS verification code has been sent to the provided phone number, we
-//                        // now need to ask the user to enter the code and then construct a credential
-//                        // by combining the code with a verification ID.
-//                        Toast.makeText(SignIn_Activity.this, "Code Send Successful", Toast.LENGTH_SHORT).show();
-//                        // Save verification ID and resending token so we can use them later
-//                        mVerificationId = verificationId;
-//                        mResendToken = token;
-//
-//                        // ...
-//                    }
-//                };
             }
         });
         fab_pick_camera.setOnClickListener(new View.OnClickListener() {
@@ -173,6 +157,8 @@ public class SignIn_Activity extends AppCompatActivity {
     {
         if(item.getItemId()==android.R.id.home)
         {
+            if(bundle.get(TAG_NAME)!=null)
+                LoginManager.getInstance().logOut();
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -192,18 +178,24 @@ public class SignIn_Activity extends AppCompatActivity {
     }
     private void onImagePicked(Object result) {
 //        Toast.makeText(this, String.format("Result: %s", result), Toast.LENGTH_LONG).show();
-        if (result instanceof Bitmap) {
+        if (result instanceof Bitmap)
+        {
             img_person.setImageBitmap((Bitmap) result);
-        } else {
+            results=result;
+            verify=true;
+        } else
+            {
             Glide.with(this)
                     .load(result) // works for File or Uri
-                    .crossFade()
                     .into(img_person);
+                results=result;
+                verify=true;
         }
-        mAuth.setFirebaseUIVersion(img_person+"");
+
     }
 
-    private File createTempFile() {
+    private File createTempFile()
+    {
         return new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), System.currentTimeMillis() + "_image.jpeg");
     }
     int counting_users()
@@ -217,7 +209,7 @@ public class SignIn_Activity extends AppCompatActivity {
                 {
                     count=dataSnapshot.getValue(Integer.class);
                     count=count+1;
-                    userdata = userdata.child("user "+count);
+                    userdata =  userdata = FirebaseDatabase.getInstance().getReference("service_providers").child("user "+count);
                     check=true;
                     //counter.setValue(count);
                 }
@@ -241,11 +233,23 @@ public class SignIn_Activity extends AppCompatActivity {
       userdata.child("mobile").setValue(ed_mobille.getText().toString());
       userdata.child("user_name").setValue(ed_username.getText().toString());
       userdata.child("passward").setValue(ed_passward.getText().toString());
+      if(bundle.getString(TAG_NAME)!=null)
+      {
+          userdata.child("image").setValue(bundle.getString(TAG_IAMGE));
+
+          mshaerd_login.saveLoginDetails(ed_email.getText().toString(),
+                  ed_passward.getText().toString(),
+                  ed_name.getText().toString(), ed_mobille.getText().toString(),
+                  "user "+count,bundle.getString(TAG_IAMGE));
+      }
 
   }
+
+
   void init()
   {
       fab_pick_camera=findViewById(R.id.fab_pick_camera);
+      bundle=getIntent().getExtras();
       fab_pick_gallery=findViewById(R.id.fab_pick_gallery);
       img_person=findViewById(R.id.img_person);
       sign_in=findViewById(R.id.sign_in);
@@ -255,20 +259,31 @@ public class SignIn_Activity extends AppCompatActivity {
       ed_username=findViewById(R.id.ed_user_name);
       ed_retype_passward=findViewById(R.id.ed_retypepass);
       ed_passward=findViewById(R.id.ed_passward);
-      mCallbacks= new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-          @Override
-          public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+      progress_bar=findViewById(R.id.progress_bar);
 
-          }
-
-          @Override
-          public void onVerificationFailed(FirebaseException e) {
-
-          }
-      };
-
-
+     if(bundle.getString(TAG_NAME)!=null)
+     {
+         ed_name.setText(bundle.getString(TAG_NAME));
+         ed_email.setText(bundle.getString(TAG_EMAIL));
+         ed_mobille.setText(bundle.getString(TAG_MOBILE));
+         ed_username.setText(bundle.getString(TAG_NAME));
+         sign_in.setText("Log in");
+         fab_pick_gallery.setVisibility(View.GONE);
+         fab_pick_camera.setVisibility(View.GONE);
+         ed_retype_passward.setVisibility(View.GONE);
+         ed_passward.setVisibility(View.GONE);
+     }
+     mshaerd_login=new Shared_pref_Login(SignIn_Activity.this);
+     load_image();
   }
+    void load_image() {
+        if (bundle.getString(TAG_IAMGE)!=null)
+        {
+            Glide.with(this)
+                    .load(bundle.getString(TAG_IAMGE)) // works for File or Uri
+                    .into(img_person);
+        }
+    }
   void usersignin()
   {
       mAuth.createUserWithEmailAndPassword(ed_email.getText().toString(),ed_passward.getText().toString())
@@ -279,7 +294,21 @@ public class SignIn_Activity extends AppCompatActivity {
                           // Sign in success, update UI with the signed-in user's information
                           Toast.makeText(SignIn_Activity.this,"Sign In Successful",Toast.LENGTH_SHORT).show();
 
-                          FirebaseUser user = mAuth.getCurrentUser();
+                          user = mAuth.getCurrentUser();
+                          UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                  .setDisplayName(ed_name.getText().toString())
+//                            .setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
+                                  .build();
+                          user.updateProfile(profileUpdates)
+                                  .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                      @Override
+                                      public void onComplete(@NonNull Task<Void> task) {
+                                          if (task.isSuccessful())
+                                          {
+
+                                          }
+                                      }
+                                  });
                           startActivity(new Intent(SignIn_Activity.this,LoginActivity.class));
                       } else
                           {
@@ -293,6 +322,76 @@ public class SignIn_Activity extends AppCompatActivity {
               });
   }
 
+  void pic_upload()
+  {
+      Uri file = Uri.fromFile((File) results);
+
+
+
+      StorageReference riversRef = storageRef.child("images/"+file.getLastPathSegment());
+      UploadTask uploadTask = riversRef.putFile(file);
+      progress_bar.setVisibility(View.VISIBLE);
+
+      uploadTask.addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception exception) {
+              // Handle unsuccessful uploads
+          }
+      }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+          @Override
+          public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+              // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+              // ...
+              progress_bar.setVisibility(View.GONE);
+              riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                  @Override
+                  public void onSuccess(Uri uri)
+                  {
+                      downloadUri =uri;
+                      Toast.makeText(SignIn_Activity.this,uri.toString(),Toast.LENGTH_SHORT).show();
+
+                      UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                              .setPhotoUri(Uri.parse(downloadUri.toString()))
+                              .build();
+                      user.updateProfile(profileUpdates)
+                              .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                  @Override
+                                  public void onComplete(@NonNull Task<Void> task)
+                                  {
+                                      if (task.isSuccessful())
+                                      {
+                                          userdata.child("name").setValue(ed_name.getText().toString());
+                                          userdata.child("email").setValue(ed_email.getText().toString());
+                                          userdata.child("mobile").setValue(ed_mobille.getText().toString());
+                                          userdata.child("user_name").setValue(ed_username.getText().toString());
+                                          userdata.child("passward").setValue(ed_passward.getText().toString());
+                                          userdata.child("image").setValue(downloadUri.toString());
+                                          Toast.makeText(SignIn_Activity.this,"Image Updated Successfully",Toast.LENGTH_SHORT).show();
+                                      }
+                                  }
+                              });
+                  }
+
+              });
+
+          }
+      });
+      // Observe state change events such as progress, pause, and resume
+      uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+          @Override
+          public void onProgress(UploadTask.TaskSnapshot taskSnapshot)
+          {
+              double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+
+              Toast.makeText(SignIn_Activity.this,"Upload is " + progress + "% done",Toast.LENGTH_SHORT).show();
+          }
+      }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+          @Override
+          public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+              Toast.makeText(SignIn_Activity.this,"Upload is paused",Toast.LENGTH_SHORT).show();
+          }
+      });
+  }
 
 
 }
