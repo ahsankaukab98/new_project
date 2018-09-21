@@ -64,7 +64,6 @@
         <activity android:name=".your_service_add_activity" />
         <activity android:name=".your_service_show_des" />
         <activity android:name=".services_list_ind" />
-        <activity android:name=".FacebookActivity" />
         <activity android:name=".About_us" />
         <activity android:name=".fav_contact_activity" />
         <activity android:name=".forget_passward"></activity>
